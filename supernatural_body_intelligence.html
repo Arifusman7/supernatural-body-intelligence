@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Supernatural Body Intelligence</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #17171f;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8e8f0;
+    --text2: #8888a0;
+    --text3: #555568;
+    --purple: #7F77DD;
+    --purple-l: #AFA9EC;
+    --purple-d: #3C3489;
+    --teal: #1D9E75;
+    --teal-l: #5DCAA5;
+    --coral: #D85A30;
+    --coral-l: #F0997B;
+    --blue: #378ADD;
+    --amber: #BA7517;
+    --amber-l: #EF9F27;
+    --pink: #D4537E;
+    --green: #639922;
+    --green-l: #97C459;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'Space Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-head);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Background grid ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(127,119,221,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(127,119,221,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(127,119,221,0.1);
+    border: 1px solid rgba(127,119,221,0.3);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-family: var(--font-mono);
+    color: var(--purple-l);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .pulse-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--purple);
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{transform:scale(1);opacity:1} 50%{transform:scale(1.6);opacity:.5} }
+
+  .header h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+  }
+  .header h1 span { color: var(--purple-l); }
+  .header p {
+    font-size: 14px;
+    color: var(--text2);
+    font-family: var(--font-mono);
+  }
+
+  /* ── Main grid ── */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 210px 1fr 230px;
+    gap: 20px;
+    align-items: start;
+    margin-bottom: 2rem;
+  }
+
+  /* ── Panels ── */
+  .panel {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1rem;
+  }
+  .panel-title {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Part buttons ── */
+  .part-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    padding: 9px 10px;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-head);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 3px;
+  }
+  .part-btn:hover {
+    background: var(--bg3);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .part-btn.active {
+    background: rgba(127,119,221,0.12);
+    border-color: rgba(127,119,221,0.4);
+    color: var(--purple-l);
+  }
+  .part-btn .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ── Body SVG canvas ── */
+  .body-canvas {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 1rem 0;
+  }
+  .body-canvas svg { width: 100%; max-width: 260px; height: auto; }
+
+  /* ── Movement cards ── */
+  .move-card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 6px;
+  }
+  .move-card:hover { border-color: var(--border2); }
+  .move-card.active {
+    border-color: rgba(29,158,117,0.5);
+    background: rgba(29,158,117,0.08);
+  }
+  .move-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .move-card.active .move-name { color: var(--teal-l); }
+  .move-meta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  .move-deg {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--teal);
+    background: rgba(29,158,117,0.12);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  .move-axis {
+    font-size: 10px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+  }
+
+  /* ── Intelligence Core ── */
+  .intel-panel {
+    background: var(--bg2);
+    border: 1px solid rgba(127,119,221,0.25);
+    border-radius: 16px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .intel-panel::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(127,119,221,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .intel-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .intel-header-text h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .intel-header-text p {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+  }
+
+  .intel-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+  }
+  .intel-node {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .intel-node:hover { border-color: var(--border2); }
+  .intel-node.lit {
+    border-color: rgba(127,119,221,0.4);
+    background: rgba(127,119,221,0.08);
+  }
+  .intel-val {
+    font-family: var(--font-mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text2);
+    transition: color 0.3s;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .intel-node.lit .intel-val { color: var(--purple-l); }
+  .intel-label {
+    font-size: 10px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    line-height: 1.3;
+  }
+  .intel-node.lit .intel-label { color: var(--purple); }
+
+  .sig-bar {
+    display: flex;
+    justify-content: center;
+    gap: 2px;
+    margin-top: 6px;
+    height: 16px;
+    align-items: flex-end;
+  }
+  .sig-bar span {
+    width: 3px;
+    border-radius: 1px;
+    background: var(--purple);
+    opacity: 0.15;
+    transition: all 0.4s;
+  }
+  .sig-bar span.on { opacity: 0.8; }
+
+  /* ── Glow animation for active SVG parts ── */
+  @keyframes bodyGlow { 0%,100%{opacity:0.7} 50%{opacity:1} }
+  .glow-part { animation: bodyGlow 1.2s ease-in-out infinite; }
+
+  /* ── Arc animation ── */
+  .arc-path { transition: d 0.4s cubic-bezier(.34,1.2,.64,1), opacity 0.3s; }
+
+  /* ── Placeholder text ── */
+  .placeholder {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--font-mono);
+    text-align: center;
+    padding: 1.5rem 0.5rem;
+    line-height: 1.6;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 800px) {
+    .main-grid { grid-template-columns: 1fr; }
+    .intel-grid { grid-template-columns: repeat(3, 1fr); }
+    .body-canvas svg { max-width: 180px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-badge"><span class="pulse-dot"></span>System active</div>
+    <h1>Supernatural <span>Body</span> Intelligence</h1>
+    <p>Every movement of every part — unified into one living system</p>
+  </div>
+
+  <!-- Main 3-column grid -->
+  <div class="main-grid">
+
+    <!-- Left: Part list -->
+    <div class="panel">
+      <div class="panel-title">Body parts</div>
+      <div id="partList"></div>
+    </div>
+
+    <!-- Center: Body figure -->
+    <div class="panel" style="padding: 0.5rem;">
+      <div class="body-canvas">
+        <svg viewBox="0 0 220 480" xmlns="http://www.w3.org/2000/svg" id="bodySVG">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M2 1L8 5L2 9" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round"/>
+            </marker>
+          </defs>
+
+          <!-- Head -->
+          <ellipse id="bp-head" cx="110" cy="42" rx="28" ry="32" style="cursor:pointer" onclick="selectPart('head')"/>
+          <!-- Neck -->
+          <rect id="bp-neck" x="100" y="72" width="20" height="18" rx="4" style="cursor:pointer" onclick="selectPart('neck')"/>
+          <!-- Torso -->
+          <rect id="bp-torso" x="70" y="90" width="80" height="100" rx="10" style="cursor:pointer" onclick="selectPart('spine')"/>
+          <!-- Shoulders -->
+          <circle id="bp-lshoulder" cx="62" cy="100" r="14" style="cursor:pointer" onclick="selectPart('shoulder')"/>
+          <circle cx="158" cy="100" r="14" style="cursor:pointer" onclick="selectPart('shoulder')"/>
+          <!-- Upper arms -->
+          <rect id="bp-larm" x="38" y="110" width="22" height="60" rx="8" style="cursor:pointer" onclick="selectPart('elbow')"/>
+          <rect x="160" y="110" width="22" height="60" rx="8" style="cursor:pointer" onclick="selectPart('elbow')"/>
+          <!-- Elbows -->
+          <circle id="bp-lelbow" cx="49" cy="174" r="10" style="cursor:pointer" onclick="selectPart('elbow')"/>
+          <circle cx="171" cy="174" r="10" style="cursor:pointer" onclick="selectPart('elbow')"/>
+          <!-- Forearms -->
+          <rect x="38" y="182" width="22" height="55" rx="7" style="cursor:pointer" onclick="selectPart('wrist')"/>
+          <rect x="160" y="182" width="22" height="55" rx="7" style="cursor:pointer" onclick="selectPart('wrist')"/>
+          <!-- Hands -->
+          <ellipse id="bp-lhand" cx="49" cy="248" rx="14" ry="18" style="cursor:pointer" onclick="selectPart('hand')"/>
+          <ellipse cx="171" cy="248" rx="14" ry="18" style="cursor:pointer" onclick="selectPart('hand')"/>
+          <!-- Hip -->
+          <rect id="bp-hip" x="72" y="192" width="76" height="35" rx="8" style="cursor:pointer" onclick="selectPart('hip')"/>
+          <!-- Thighs -->
+          <rect id="bp-lthigh" x="76" y="228" width="28" height="70" rx="9" style="cursor:pointer" onclick="selectPart('knee')"/>
+          <rect x="116" y="228" width="28" height="70" rx="9" style="cursor:pointer" onclick="selectPart('knee')"/>
+          <!-- Knees -->
+          <circle id="bp-lknee" cx="90" cy="302" r="12" style="cursor:pointer" onclick="selectPart('knee')"/>
+          <circle cx="130" cy="302" r="12" style="cursor:pointer" onclick="selectPart('knee')"/>
+          <!-- Shins -->
+          <rect x="78" y="312" width="24" height="70" rx="8" style="cursor:pointer" onclick="selectPart('ankle')"/>
+          <rect x="118" y="312" width="24" height="70" rx="8" style="cursor:pointer" onclick="selectPart('ankle')"/>
+          <!-- Ankles -->
+          <circle id="bp-lankle" cx="90" cy="385" r="9" style="cursor:pointer" onclick="selectPart('ankle')"/>
+          <circle cx="130" cy="385" r="9" style="cursor:pointer" onclick="selectPart('ankle')"/>
+          <!-- Feet -->
+          <ellipse id="bp-lfoot" cx="86" cy="406" rx="20" ry="12" style="cursor:pointer" onclick="selectPart('foot')"/>
+          <ellipse cx="134" cy="406" rx="20" ry="12" style="cursor:pointer" onclick="selectPart('foot')"/>
+
+          <!-- Movement arc -->
+          <g id="arcGroup" opacity="0" style="transition: opacity 0.3s">
+            <path id="arcPath" class="arc-path" fill="none" stroke="#1D9E75" stroke-width="2"
+              stroke-dasharray="5 3" stroke-linecap="round" d="M 110 42"/>
+            <text id="arcLabel" font-size="10" fill="#5DCAA5" text-anchor="middle"
+              font-family="'Space Mono', monospace" font-weight="700"></text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Right: Movements -->
+    <div class="panel">
+      <div class="panel-title">Movements</div>
+      <div id="infoPanel">
+        <div class="placeholder">← Select a body part to explore all its coded movements</div>
+      </div>
+    </div>
+
+  </div><!-- /main-grid -->
+
+  <!-- Intelligence Core -->
+  <div class="intel-panel">
+    <div class="intel-header">
+      <div class="pulse-dot"></div>
+      <div class="intel-header-text">
+        <h3>Supernatural Intelligence Core</h3>
+        <p>Real-time integration across all body systems</p>
+      </div>
+    </div>
+    <div class="intel-grid" id="intelGrid"></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+const BODY_PARTS = {
+  head: {
+    label: 'Head / Skull', color: '#7F77DD', bg: 'rgba(127,119,221,0.15)', dot: '#AFA9EC',
+    svgIds: ['bp-head'],
+    center: [110, 42],
+    moves: [
+      { name: 'Flexion (forward nod)', deg: '0–45°', axis: 'Sagittal' },
+      { name: 'Extension (look up)', deg: '0–60°', axis: 'Sagittal' },
+      { name: 'Lateral flexion left', deg: '0–45°', axis: 'Frontal' },
+      { name: 'Lateral flexion right', deg: '0–45°', axis: 'Frontal' },
+      { name: 'Rotation left', deg: '0–80°', axis: 'Transverse' },
+      { name: 'Rotation right', deg: '0–80°', axis: 'Transverse' },
+      { name: 'Circumduction', deg: '360°', axis: 'Multi-axis' },
+    ]
+  },
+  neck: {
+    label: 'Neck / Cervical', color: '#D85A30', bg: 'rgba(216,90,48,0.15)', dot: '#F0997B',
+    svgIds: ['bp-neck'],
+    center: [110, 81],
+    moves: [
+      { name: 'Flexion', deg: '0–50°', axis: 'Sagittal' },
+      { name: 'Extension', deg: '0–60°', axis: 'Sagittal' },
+      { name: 'Lateral bending', deg: '0–45°', axis: 'Frontal' },
+      { name: 'Rotation', deg: '0–80°', axis: 'Transverse' },
+      { name: 'Axial elongation', deg: 'Traction', axis: 'Vertical' },
+      { name: 'Protraction', deg: '0–20°', axis: 'Sagittal' },
+    ]
+  },
+  shoulder: {
+    label: 'Shoulder', color: '#1D9E75', bg: 'rgba(29,158,117,0.15)', dot: '#5DCAA5',
+    svgIds: ['bp-lshoulder'],
+    center: [62, 100],
+    moves: [
+      { name: 'Flexion', deg: '0–180°', axis: 'Sagittal' },
+      { name: 'Extension', deg: '0–60°', axis: 'Sagittal' },
+      { name: 'Abduction', deg: '0–180°', axis: 'Frontal' },
+      { name: 'Adduction', deg: '0–45°', axis: 'Frontal' },
+      { name: 'Internal rotation', deg: '0–70°', axis: 'Transverse' },
+      { name: 'External rotation', deg: '0–90°', axis: 'Transverse' },
+      { name: 'Horizontal abduction', deg: '0–90°', axis: 'Horizontal' },
+      { name: 'Horizontal adduction', deg: '0–45°', axis: 'Horizontal' },
+      { name: 'Circumduction', deg: '360°', axis: 'Multi-axis' },
+      { name: 'Scapular elevation', deg: '0–40°', axis: 'Frontal' },
+      { name: 'Scapular depression', deg: '0–20°', axis: 'Frontal' },
+    ]
+  },
+  elbow: {
+    label: 'Elbow', color: '#D4537E', bg: 'rgba(212,83,126,0.15)', dot: '#ED93B1',
+    svgIds: ['bp-lelbow', 'bp-larm'],
+    center: [49, 174],
+    moves: [
+      { name: 'Flexion', deg: '0–145°', axis: 'Sagittal' },
+      { name: 'Extension', deg: '0° (full)', axis: 'Sagittal' },
+      { name: 'Hyperextension', deg: '0–10°', axis: 'Sagittal' },
+      { name: 'Pronation', deg: '0–80°', axis: 'Longitudinal' },
+      { name: 'Supination', deg: '0–85°', axis: 'Longitudinal' },
+    ]
+  },
+  wrist: {
+    label: 'Wrist', color: '#378ADD', bg: 'rgba(55,138,221,0.15)', dot: '#85B7EB',
+    svgIds: ['bp-lhand'],
+    center: [49, 237],
+    moves: [
+      { name: 'Palmar flexion', deg: '0–80°', axis: 'Sagittal' },
+      { name: 'Dorsiflexion', deg: '0–70°', axis: 'Sagittal' },
+      { name: 'Radial deviation', deg: '0–20°', axis: 'Frontal' },
+      { name: 'Ulnar deviation', deg: '0–30°', axis: 'Frontal' },
+      { name: 'Circumduction', deg: '360°', axis: 'Multi-axis' },
+      { name: 'Pronation (forearm)', deg: '0–80°', axis: 'Longitudinal' },
+    ]
+  },
+  hand: {
+    label: 'Hand / Fingers', color: '#BA7517', bg: 'rgba(186,117,23,0.15)', dot: '#EF9F27',
+    svgIds: ['bp-lhand'],
+    center: [49, 258],
+    moves: [
+      { name: 'MCP flexion', deg: '0–90°', axis: 'Sagittal' },
+      { name: 'MCP extension', deg: '0–45°', axis: 'Sagittal' },
+      { name: 'PIP flexion', deg: '0–120°', axis: 'Sagittal' },
+      { name: 'DIP flexion', deg: '0–80°', axis: 'Sagittal' },
+      { name: 'Finger abduction', deg: '0–30°', axis: 'Frontal' },
+      { name: 'Finger adduction', deg: '0–30°', axis: 'Frontal' },
+      { name: 'Thumb CMC flexion', deg: '0–50°', axis: 'Sagittal' },
+      { name: 'Thumb abduction', deg: '0–70°', axis: 'Frontal' },
+      { name: 'Thumb opposition', deg: 'Rotation+flex', axis: 'Multi-axis' },
+      { name: 'Power grip', deg: 'Full closure', axis: 'Complex' },
+      { name: 'Pinch grip', deg: 'Precision', axis: 'Complex' },
+      { name: 'Lateral pinch', deg: 'Key grip', axis: 'Complex' },
+    ]
+  },
+  spine: {
+    label: 'Spine / Torso', color: '#639922', bg: 'rgba(99,153,34,0.15)', dot: '#97C459',
+    svgIds: ['bp-torso', 'bp-hip'],
+    center: [110, 140],
+    moves: [
+      { name: 'Lumbar flexion', deg: '0–75°', axis: 'Sagittal' },
+      { name: 'Lumbar extension', deg: '0–30°', axis: 'Sagittal' },
+      { name: 'Thoracic flexion', deg: '0–45°', axis: 'Sagittal' },
+      { name: 'Lateral flexion', deg: '0–35°', axis: 'Frontal' },
+      { name: 'Lumbar rotation', deg: '0–18°', axis: 'Transverse' },
+      { name: 'Thoracic rotation', deg: '0–35°', axis: 'Transverse' },
+      { name: 'Spinal elongation', deg: 'Decompression', axis: 'Vertical' },
+    ]
+  },
+  hip: {
+    label: 'Hip', color: '#7F77DD', bg: 'rgba(127,119,221,0.15)', dot: '#AFA9EC',
+    svgIds: ['bp-hip', 'bp-lthigh'],
+    center: [110, 210],
+    moves: [
+      { name: 'Flexion', deg: '0–120°', axis: 'Sagittal' },
+      { name: 'Extension', deg: '0–30°', axis: 'Sagittal' },
+      { name: 'Abduction', deg: '0–45°', axis: 'Frontal' },
+      { name: 'Adduction', deg: '0–30°', axis: 'Frontal' },
+      { name: 'Internal rotation', deg: '0–45°', axis: 'Transverse' },
+      { name: 'External rotation', deg: '0–45°', axis: 'Transverse' },
+      { name: 'Circumduction', deg: '360°', axis: 'Multi-axis' },
+    ]
+  },
+  knee: {
+    label: 'Knee', color: '#D4537E', bg: 'rgba(212,83,126,0.15)', dot: '#ED93B1',
+    svgIds: ['bp-lknee', 'bp-lthigh'],
+    center: [90, 302],
+    moves: [
+      { name: 'Flexion', deg: '0–140°', axis: 'Sagittal' },
+      { name: 'Extension', deg: '0° (lock)', axis: 'Sagittal' },
+      { name: 'Hyperextension', deg: '0–10°', axis: 'Sagittal' },
+      { name: 'Internal tibial rotation', deg: '0–30°', axis: 'Transverse' },
+      { name: 'External tibial rotation', deg: '0–40°', axis: 'Transverse' },
+    ]
+  },
+  ankle: {
+    label: 'Ankle', color: '#378ADD', bg: 'rgba(55,138,221,0.15)', dot: '#85B7EB',
+    svgIds: ['bp-lankle'],
+    center: [90, 385],
+    moves: [
+      { name: 'Dorsiflexion', deg: '0–20°', axis: 'Sagittal' },
+      { name: 'Plantarflexion', deg: '0–50°', axis: 'Sagittal' },
+      { name: 'Inversion', deg: '0–35°', axis: 'Frontal' },
+      { name: 'Eversion', deg: '0–25°', axis: 'Frontal' },
+      { name: 'Pronation', deg: 'Combined', axis: 'Multi-axis' },
+      { name: 'Supination', deg: 'Combined', axis: 'Multi-axis' },
+    ]
+  },
+  foot: {
+    label: 'Foot / Toes', color: '#BA7517', bg: 'rgba(186,117,23,0.15)', dot: '#EF9F27',
+    svgIds: ['bp-lfoot'],
+    center: [86, 406],
+    moves: [
+      { name: 'MTP flexion', deg: '0–45°', axis: 'Sagittal' },
+      { name: 'MTP extension', deg: '0–70°', axis: 'Sagittal' },
+      { name: 'Big toe extension', deg: '0–90°', axis: 'Sagittal' },
+      { name: 'Toe abduction', deg: '0–15°', axis: 'Frontal' },
+      { name: 'Arch dynamic loading', deg: 'Dynamic', axis: 'Multi-axis' },
+      { name: 'Toe curling', deg: '0–60°', axis: 'Sagittal' },
+    ]
+  },
+};
+
+const INTEL_NODES = [
+  { id: 'signals', label: 'Neural signals/s', unit: '' },
+  { id: 'joints',  label: 'Joints active',   unit: '' },
+  { id: 'muscles', label: 'Muscles engaged',  unit: '' },
+  { id: 'rom',     label: 'Total ROM (°)',    unit: '°' },
+  { id: 'moves',   label: 'Movements coded',  unit: '' },
+];
+
+let currentPart = null;
+let activePartKeys = new Set();
+
+/* ── Build part list ── */
+function buildPartList() {
+  const list = document.getElementById('partList');
+  Object.entries(BODY_PARTS).forEach(([key, part]) => {
+    const btn = document.createElement('button');
+    btn.className = 'part-btn';
+    btn.id = 'partbtn-' + key;
+    btn.innerHTML = `<span class="dot" style="background:${part.dot}"></span>${part.label}`;
+    btn.onclick = () => selectPart(key);
+    list.appendChild(btn);
+  });
+}
+
+/* ── Build intelligence grid ── */
+function buildIntelGrid() {
+  const grid = document.getElementById('intelGrid');
+  INTEL_NODES.forEach(n => {
+    const node = document.createElement('div');
+    node.className = 'intel-node';
+    node.id = 'intel-' + n.id;
+    node.innerHTML = `
+      <div class="intel-val" id="ival-${n.id}">0</div>
+      <div class="intel-label">${n.label}</div>
+      <div class="sig-bar" id="sig-${n.id}">
+        ${[...Array(6)].map(() => '<span></span>').join('')}
+      </div>`;
+    grid.appendChild(node);
+  });
+}
+
+/* ── Select a body part ── */
+function selectPart(key) {
+  if (!BODY_PARTS[key]) return;
+  currentPart = key;
+  const part = BODY_PARTS[key];
+
+  // Update button states
+  document.querySelectorAll('.part-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('partbtn-' + key).classList.add('active');
+
+  // Reset SVG
+  resetSVGHighlights();
+
+  // Highlight relevant parts
+  part.svgIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.fill = part.bg;
+    el.style.stroke = part.color;
+    el.style.strokeWidth = '2.5';
+    el.classList.add('glow-part');
+  });
+
+  // Show arc
+  showArc(key, 0);
+
+  // Build movement list
+  const panel = document.getElementById('infoPanel');
+  panel.innerHTML = '';
+  part.moves.forEach((move, i) => {
+    const card = document.createElement('div');
+    card.className = 'move-card' + (i === 0 ? ' active' : '');
+    card.id = 'move-' + i;
+    card.innerHTML = `
+      <div class="move-name">${move.name}</div>
+      <div class="move-meta">
+        <span class="move-deg">${move.deg}</span>
+        <span class="move-axis">${move.axis}</span>
+      </div>`;
+    card.onclick = () => {
+      document.querySelectorAll('.move-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      showArc(key, i);
+    };
+    panel.appendChild(card);
+  });
+
+  activePartKeys.add(key);
+  updateIntelligence();
+}
+
+/* ── Reset SVG styles ── */
+function resetSVGHighlights() {
+  document.querySelectorAll('#bodySVG ellipse, #bodySVG rect, #bodySVG circle').forEach(el => {
+    if (el.closest('#arcGroup')) return;
+    el.style.fill = 'rgba(255,255,255,0.05)';
+    el.style.stroke = 'rgba(255,255,255,0.18)';
+    el.style.strokeWidth = '1';
+    el.classList.remove('glow-part');
+  });
+  document.getElementById('arcGroup').setAttribute('opacity', '0');
+}
+
+/* ── Show movement arc ── */
+function showArc(partKey, moveIdx) {
+  const part = BODY_PARTS[partKey];
+  const move = part.moves[moveIdx];
+  const [cx, cy] = part.center;
+  const arcGroup = document.getElementById('arcGroup');
+  const arcPath  = document.getElementById('arcPath');
+  const arcLabel = document.getElementById('arcLabel');
+
+  const r = 30;
+  const degMatch = move.deg.match(/(\d+)/);
+  const deg = degMatch ? Math.min(parseInt(degMatch[1]), 270) : 60;
+
+  const startRad = -Math.PI / 2;
+  const endRad = startRad + (deg / 180) * Math.PI;
+  const x1 = cx + r * Math.cos(startRad);
+  const y1 = cy + r * Math.sin(startRad);
+  const x2 = cx + r * Math.cos(endRad);
+  const y2 = cy + r * Math.sin(endRad);
+  const large = deg > 180 ? 1 : 0;
+
+  arcPath.setAttribute('d', `M ${cx} ${cy} L ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)} Z`);
+  arcPath.setAttribute('stroke', part.color);
+  arcPath.setAttribute('fill', part.bg);
+
+  const midRad = (startRad + endRad) / 2;
+  arcLabel.setAttribute('x', (cx + (r + 14) * Math.cos(midRad)).toFixed(1));
+  arcLabel.setAttribute('y', (cy + (r + 14) * Math.sin(midRad)).toFixed(1));
+  arcLabel.setAttribute('fill', part.dot);
+  arcLabel.textContent = move.deg;
+
+  arcGroup.setAttribute('opacity', '1');
+}
+
+/* ── Update intelligence core ── */
+function updateIntelligence() {
+  const n = activePartKeys.size;
+
+  const totalMoves = [...activePartKeys].reduce((sum, k) => sum + BODY_PARTS[k].moves.length, 0);
+  const totalROM = [...activePartKeys].reduce((sum, k) => {
+    return sum + BODY_PARTS[k].moves.reduce((s, m) => {
+      const match = m.deg.match(/(\d+)/);
+      return s + (match ? parseInt(match[1]) : 30);
+    }, 0);
+  }, 0);
+
+  const vals = {
+    signals: Math.round(n * 847 + (Math.random() * 100)),
+    joints:  n * 2,
+    muscles: n * 8,
+    rom:     totalROM,
+    moves:   totalMoves,
+  };
+
+  INTEL_NODES.forEach(node => {
+    const el  = document.getElementById('intel-' + node.id);
+    const val = document.getElementById('ival-' + node.id);
+    if (!el || !val) return;
+
+    el.classList.toggle('lit', n > 0);
+    val.textContent = vals[node.id].toLocaleString();
+
+    const bars = document.querySelectorAll('#sig-' + node.id + ' span');
+    bars.forEach((b, i) => b.classList.toggle('on', i < Math.min(Math.ceil(n / 2) + 1, 6)));
+  });
+}
+
+/* ── Init ── */
+buildPartList();
+buildIntelGrid();
+
+// Set default SVG fill
+resetSVGHighlights();
+
+// Auto-select shoulder on load
+setTimeout(() => selectPart('shoulder'), 200);
+</script>
+</body>
+</html>
